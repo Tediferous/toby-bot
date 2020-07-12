@@ -15,7 +15,7 @@ import (
 var (
 	Token   string
 	Spam    string
-	Sesh    discordgo.Session
+	Sesh    *discordgo.Session
 	Guild   string
 	BanRole string
 )
@@ -32,7 +32,8 @@ func init() {
 
 func main() {
 	log.Info("* Fight Song Plays *")
-	Sesh, err := discordgo.New("Bot " + Token)
+	s, err := discordgo.New("Bot " + Token)
+        Sesh = s
 
 	Check(err)
 
@@ -108,32 +109,34 @@ func ban(warrant ...string) {
         trace(warrant)
         Sesh.ChannelMessageSend(Spam,":hammer:")
 	member, err := Sesh.GuildMember(Guild, warrant[0])
+        trace(member)
 	Check(err)
 	sentence, _ := time.ParseDuration("12h")
 
 	if len(warrant) > 1 {
-		sentence, err = time.ParseDuration(warrant[1])
+		sentence, err = time.ParseDuration(strings.TrimSpace(warrant[1]))
 		Check(err)
 	}
 
 	roles := member.Roles
+        trace(roles)
 
 	//remove all roles from member
 	for _, role := range roles {
-		Sesh.GuildMemberRoleRemove(Guild, member.User.ID, role)
+		Check(Sesh.GuildMemberRoleRemove(Guild, member.User.ID, role))
 	}
 
 	//add banned role to member
-	Sesh.GuildMemberRoleAdd(Guild, member.User.ID, BanRole)
+	Check(Sesh.GuildMemberRoleAdd(Guild, member.User.ID, BanRole))
 
 	//parse time and sleep
 	time.Sleep(sentence)
 
 	//remove banned role, add old roles
 	for _, role := range roles {
-		Sesh.GuildMemberRoleAdd(Guild, member.User.ID, role)
+		Check(Sesh.GuildMemberRoleAdd(Guild, member.User.ID, role))
 	}
-	Sesh.GuildMemberRoleRemove(Guild, member.User.ID, BanRole)
+	Check(Sesh.GuildMemberRoleRemove(Guild, member.User.ID, BanRole))
 
 }
 
