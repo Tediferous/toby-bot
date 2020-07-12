@@ -58,7 +58,7 @@ func main() {
 
 	// Cleanly close down the Discord session.
 	Sesh.Close()
-	log.Info("* Georgia Plays *")
+	log.Info("* Georgia on My Mind Plays *")
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
