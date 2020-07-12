@@ -33,7 +33,7 @@ func init() {
 func main() {
 	log.Info("* Fight Song Plays *")
 	s, err := discordgo.New("Bot " + Token)
-        Sesh = s
+	Sesh = s
 
 	Check(err)
 
@@ -106,10 +106,10 @@ func messageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
 
 func ban(warrant ...string) {
 	log.Debug("Getting out the hammer")
-        trace(warrant)
-        Sesh.ChannelMessageSend(Spam,":hammer:")
+	trace(warrant)
+	Sesh.ChannelMessageSend(Spam, ":hammer:")
 	member, err := Sesh.GuildMember(Guild, warrant[0])
-        trace(member)
+	trace(member)
 	Check(err)
 	sentence, _ := time.ParseDuration("12h")
 
@@ -119,7 +119,7 @@ func ban(warrant ...string) {
 	}
 
 	roles := member.Roles
-        trace(roles)
+	trace(roles)
 
 	//remove all roles from member
 	for _, role := range roles {
@@ -164,6 +164,7 @@ func Check(err error) {
 	if err != nil {
 		log.Error("Oops")
 		log.Error(err)
+                os.Exit(1)
 	}
 }
 
