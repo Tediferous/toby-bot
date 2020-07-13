@@ -89,7 +89,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if isMentioned(s.State.User, m.Mentions) {
 		log.Info("I heard my name")
 		params := strings.Split(m.Content, ",")
-		if m.Author.ID == GuildDaddy && strings.Contains(params[0], "ban") {
+		if (m.Author.ID == GuildDaddy) && strings.Contains(params[0], "ban") {
 			log.Debug("hammer? :eyes:")
 			for _, u := range m.Mentions {
 				if u.ID != s.State.User.ID {
@@ -138,6 +138,7 @@ func ban(warrant ...string) {
 			Sesh.ChannelMessageSend(sceneOfTheCrime, "the best I can do is 24 hours...")
 		}
 	}
+	Sesh.ChannelMessageSend(sceneOfTheCrime, ":hammer:")
 
 	roles := member.Roles
 	trace(roles)
@@ -149,7 +150,6 @@ func ban(warrant ...string) {
 
 	//add banned role to member
 	Check(Sesh.GuildMemberRoleAdd(Guild, member.User.ID, BanRole))
-	Sesh.ChannelMessageSend(sceneOfTheCrime, ":hammer:")
 
 	//parse time and sleep
 	time.Sleep(sentence)
