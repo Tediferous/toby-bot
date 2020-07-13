@@ -24,7 +24,8 @@ var (
 func init() {
 	log.SetLevel(log.DebugLevel)
 
-	flag.StringVar(&Token, "t", "", "Bot Token")
+	Token = os.Getenv("TOKEN")
+	flag.StringVar(&Token, "t", Token, "Bot Token")
 	flag.StringVar(&Spam, "s", "731514187335073823", "Spam Channel ID")
 	flag.StringVar(&Guild, "g", "510456636263890949", "Guild ID")
 	flag.StringVar(&BanRole, "b", "671763594643374100", "Ban Role ID")
