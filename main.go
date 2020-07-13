@@ -129,7 +129,9 @@ func ban(warrant ...string) {
 
 	if len(warrant) > 2 {
 		sentence, err = time.ParseDuration(strings.TrimSpace(warrant[2]))
-		Check(err)
+		if err != nil {
+			sentence = 5 * time.Hour
+		}
 		maxSentence := 24 * time.Hour
 		if sentence > maxSentence {
 			sentence = maxSentence
