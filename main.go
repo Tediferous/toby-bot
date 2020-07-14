@@ -23,6 +23,9 @@ var (
 
 func init() {
 	log.SetLevel(log.DebugLevel)
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
 
 	Token = os.Getenv("TOKEN")
 	flag.StringVar(&Token, "t", Token, "Bot Token")
@@ -30,6 +33,7 @@ func init() {
 	flag.StringVar(&Guild, "g", "510456636263890949", "Guild ID")
 	flag.StringVar(&BanRole, "b", "671763594643374100", "Ban Role ID")
 	flag.Parse()
+
 }
 
 func main() {
@@ -98,9 +102,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 			return
 			//TODO poll if message has '?'
-		} else {
+		} else if strings.Contains(params[0], "ban") {
 			s.ChannelMessageSend(m.ChannelID, ":b:etas dont have the power to ban")
+		} else {
+			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
+			// log.Error(err)
 		}
+
 	}
 
 }
@@ -185,8 +193,7 @@ func isMentioned(u *discordgo.User, m []*discordgo.User) bool {
 func Check(err error) {
 	if err != nil {
 		log.Error("Oops")
-		log.Error(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
 
