@@ -147,7 +147,7 @@ func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
 
 	if tally["🔨"]-tally["nohammer"] >= 3 {
 		Check(s.ChannelMessageDelete(channel, evidence))
-		s.ChannelMessageSend(channel, "The people have spoken. Banning the perp and deleting the message so it can hurt us anymore")
+		s.ChannelMessageSend(channel, "The people have spoken. Banning the perp and deleting the message so it can't hurt us anymore")
 		s.ChannelMessageSend(channel, ":hammer:")
 		go ban(message.Author.ID, evidence, "2h")
 	}
