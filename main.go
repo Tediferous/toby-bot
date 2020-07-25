@@ -104,13 +104,13 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		} else if strings.Contains(params[0], "ban") {
 			s.ChannelMessageSend(m.ChannelID, ":b:etas dont have the power to ban")
-                        return
-		// } else if strings.Contains(params[0], "king me") {
-		//         kingEm(s,m)
-                        // return
-		// } else if strings.Contains(params[0], "beta me") {
-		//         betaEm(s,m)
-                        // return
+			return
+			// } else if strings.Contains(params[0], "king me") {
+			//         kingEm(s,m)
+			// return
+			// } else if strings.Contains(params[0], "beta me") {
+			//         betaEm(s,m)
+			// return
 		} else {
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
 		}
@@ -119,16 +119,16 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 }
 
-func kingEm (s *discordgo.Session, m *discordgo.MessageCreate){
+func kingEm(s *discordgo.Session, m *discordgo.MessageCreate) {
 	member, _ := Sesh.GuildMember(Guild, m.Author.ID)
 	Check(Sesh.GuildMemberRoleAdd(Guild, member.User.ID, "731317170386108509"))
-        s.ChannelMessageSend(m.ChannelID, ":crown:")
+	s.ChannelMessageSend(m.ChannelID, ":crown:")
 }
 
-func betaEm (s *discordgo.Session, m *discordgo.MessageCreate){
+func betaEm(s *discordgo.Session, m *discordgo.MessageCreate) {
 	member, _ := Sesh.GuildMember(Guild, m.Author.ID)
 	Check(Sesh.GuildMemberRoleRemove(Guild, member.User.ID, "731317170386108509"))
-        s.ChannelMessageSend(m.ChannelID, ":b:")
+	s.ChannelMessageSend(m.ChannelID, ":b:")
 }
 
 func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
@@ -189,7 +189,7 @@ func ban(warrant ...string) {
 	sceneOfTheCrime := warrant[1]
 	// Dont ban the bot
 	if warrant[0] == Sesh.State.User.ID {
-                Sesh.ChannelMessageSend(sceneOfTheCrime, "I cant be banned sorry")
+		Sesh.ChannelMessageSend(sceneOfTheCrime, "I cant be banned sorry")
 		return
 	}
 
