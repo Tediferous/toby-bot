@@ -45,6 +45,8 @@ func main() {
 
 	Sesh.AddHandler(messageCreate)
 	Sesh.AddHandler(messageDelete)
+	Sesh.AddHandler(messageReactionAdd)
+	Sesh.AddHandler(messageReactionRemove)
 
 	//Open socket
 	Check(Sesh.Open())
@@ -72,7 +74,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	trace(s)
 	trace(m)
 
 	// general debug and joke messages
@@ -101,22 +102,60 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				}
 			}
 			return
-			//TODO poll if message has '?'
 		} else if strings.Contains(params[0], "ban") {
 			s.ChannelMessageSend(m.ChannelID, ":b:etas dont have the power to ban")
 		} else {
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
-			// log.Error(err)
 		}
 
 	}
 
 }
 
+func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
+
+	trace(r)
+
+	if (r.Emoji.Name == "🔨") || (r.Emoji.Name == "nohammer") {
+		tallyBanVotes(s, r.ChannelID, r.MessageID)
+		return
+	}
+	return
+}
+
+func messageReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRemove) {
+
+	trace(r)
+
+	if (r.Emoji.Name == "🔨") || (r.Emoji.Name == "nohammer") {
+		tallyBanVotes(s, r.ChannelID, r.MessageID)
+		return
+	}
+	return
+}
+
+func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
+	message, err := s.ChannelMessage(channel, evidence)
+	Check(err)
+
+	tally := make(map[string]int)
+	tally["🔨"] = 0
+	tally["hammer"] = 0
+	for _, reaction := range message.Reactions {
+		tally[reaction.Emoji.Name] = reaction.Count
+	}
+
+	if tally["🔨"]-tally["nohammer"] >= 3 {
+		Check(s.ChannelMessageDelete(channel, evidence))
+		s.ChannelMessageSend(channel, "The people have spoken. Banning the perp and deleting the message so it can hurt us anymore")
+		s.ChannelMessageSend(channel, ":hammer:")
+		go ban(message.Author.ID, evidence, "2h")
+	}
+	return
+}
 func messageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
 	// TODO: make this function do something
 
-	trace(s)
 	trace(m)
 	// // Ignore all messages created by the bot itself
 	// if m.Message.Author.ID == s.State.User.ID {
@@ -133,12 +172,13 @@ func ban(warrant ...string) {
 	sceneOfTheCrime := warrant[1]
 	trace(member)
 	Check(err)
-	sentence := 5 * time.Hour
+	sentence := 2 * time.Hour
 
 	if len(warrant) > 2 {
 		sentence, err = time.ParseDuration(strings.TrimSpace(warrant[2]))
 		if err != nil {
-			sentence = 5 * time.Hour
+			sentence = 2 * time.Hour
+			Sesh.ChannelMessageSend(sceneOfTheCrime, "I couldn't understand your time duration, so Ill set it to 2 hours")
 		}
 		maxSentence := 24 * time.Hour
 		if sentence > maxSentence {
