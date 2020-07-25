@@ -104,12 +104,31 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		} else if strings.Contains(params[0], "ban") {
 			s.ChannelMessageSend(m.ChannelID, ":b:etas dont have the power to ban")
+                        return
+		// } else if strings.Contains(params[0], "king me") {
+		//         kingEm(s,m)
+                        // return
+		// } else if strings.Contains(params[0], "beta me") {
+		//         betaEm(s,m)
+                        // return
 		} else {
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
 		}
 
 	}
 
+}
+
+func kingEm (s *discordgo.Session, m *discordgo.MessageCreate){
+	member, _ := Sesh.GuildMember(Guild, m.Author.ID)
+	Check(Sesh.GuildMemberRoleAdd(Guild, member.User.ID, "731317170386108509"))
+        s.ChannelMessageSend(m.ChannelID, ":crown:")
+}
+
+func betaEm (s *discordgo.Session, m *discordgo.MessageCreate){
+	member, _ := Sesh.GuildMember(Guild, m.Author.ID)
+	Check(Sesh.GuildMemberRoleRemove(Guild, member.User.ID, "731317170386108509"))
+        s.ChannelMessageSend(m.ChannelID, ":b:")
 }
 
 func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
@@ -140,16 +159,15 @@ func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
 
 	tally := make(map[string]int)
 	tally["🔨"] = 0
-	tally["hammer"] = 0
+	tally["nohammer"] = 0
 	for _, reaction := range message.Reactions {
 		tally[reaction.Emoji.Name] = reaction.Count
 	}
 
 	if tally["🔨"]-tally["nohammer"] >= 3 {
 		Check(s.ChannelMessageDelete(channel, evidence))
-		s.ChannelMessageSend(channel, "The people have spoken. Banning the perp and deleting the message so it can't hurt us anymore")
-		s.ChannelMessageSend(channel, ":hammer:")
-		go ban(message.Author.ID, evidence, "2h")
+		s.ChannelMessageSend(channel, "The people have spoken. Banning the perp and deleting the message so it can hurt us no more")
+		go ban(message.Author.ID, channel, "2h")
 	}
 	return
 }
@@ -168,8 +186,15 @@ func messageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
 func ban(warrant ...string) {
 	log.Debug("Getting out the hammer")
 	trace(warrant)
-	member, err := Sesh.GuildMember(Guild, warrant[0])
 	sceneOfTheCrime := warrant[1]
+	// Dont ban the bot
+	if warrant[0] == Sesh.State.User.ID {
+                Sesh.ChannelMessageSend(sceneOfTheCrime, "I cant be banned sorry")
+		return
+	}
+
+	member, err := Sesh.GuildMember(Guild, warrant[0])
+
 	trace(member)
 	Check(err)
 	sentence := 2 * time.Hour
