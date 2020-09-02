@@ -45,8 +45,8 @@ func main() {
 
 	Sesh.AddHandler(messageCreate)
 	Sesh.AddHandler(messageDelete)
-	Sesh.AddHandler(messageReactionAdd)
-	Sesh.AddHandler(messageReactionRemove)
+	// Sesh.AddHandler(messageReactionAdd)
+	// Sesh.AddHandler(messageReactionRemove)
 
 	//Open socket
 	Check(Sesh.Open())
@@ -93,25 +93,26 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if isMentioned(s.State.User, m.Mentions) {
 		log.Info("I heard my name")
-		params := strings.Split(m.Content, ",")
-		if (m.Author.ID == GuildDaddy) && strings.Contains(params[0], "ban") {
-			log.Debug("hammer? :eyes:")
-			for _, u := range m.Mentions {
-				if u.ID != s.State.User.ID {
-					go ban(append([]string{u.ID, m.ChannelID}, params[1:]...)...)
-				}
-			}
-			return
-		} else if strings.Contains(params[0], "ban") {
-			s.ChannelMessageSend(m.ChannelID, ":b:etas dont have the power to ban")
-			return
-			// } else if strings.Contains(params[0], "king me") {
-			//         kingEm(s,m)
-			// return
-			// } else if strings.Contains(params[0], "beta me") {
-			//         betaEm(s,m)
-			// return
-		} else {
+		// params := strings.Split(m.Content, ",")
+		// if (m.Author.ID == GuildDaddy) && strings.Contains(params[0], "ban") {
+		// 	log.Debug("hammer? :eyes:")
+		// 	for _, u := range m.Mentions {
+		// 		if u.ID != s.State.User.ID {
+		// 			go ban(append([]string{u.ID, m.ChannelID}, params[1:]...)...)
+		// 		}
+		// 	}
+		// 	return
+		// } else if strings.Contains(params[0], "ban") {
+		// 	s.ChannelMessageSend(m.ChannelID, ":b:etas dont have the power to ban")
+		// 	return
+		// 	// } else if strings.Contains(params[0], "king me") {
+		// 	//         kingEm(s,m)
+		// 	// return
+		// 	// } else if strings.Contains(params[0], "beta me") {
+		// 	//         betaEm(s,m)
+		// 	// return
+		// } else {
+
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
 		}
 
