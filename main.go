@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+        "math/rand"
 	"flag"
 	"github.com/bwmarrin/discordgo"
 	log "github.com/sirupsen/logrus"
@@ -76,6 +77,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	trace(m)
 
+        if (rand.Intn(100) >= 97){
+                s.MessageReactionAdd(m.ChannelID, m.ID, "🧢")
+        }
+
 	// general debug and joke messages
 	switch m.Content {
 	case "go bears":
@@ -114,7 +119,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// } else {
 
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
-		}
+		// }
 
 	}
 
