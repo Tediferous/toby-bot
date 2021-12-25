@@ -17,7 +17,7 @@
   b. Server 
   c. Ban Role - a role that only allows someone to speak in the banned channel
  5. Install go modules with `go mod download`, i think?, maybe `go build`
-6. run with `go run main.go -t <TOKEN>`
+6. run with `go run toby.go -t <TOKEN>`
 
 ## How to add THE Toby to a Server
 1. https://discord.com/oauth2/authorize?client_id=731318242903064667&scope=bot&permissions=1543576640

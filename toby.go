@@ -1,16 +1,17 @@
-package main
+package toby
 
 import (
 	"encoding/json"
-        "math/rand"
 	"flag"
-	"github.com/bwmarrin/discordgo"
-	log "github.com/sirupsen/logrus"
+	"math/rand"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -77,9 +78,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	trace(m)
 
-        if (rand.Intn(100) >= 97){
-                s.MessageReactionAdd(m.ChannelID, m.ID, "🧢")
-        }
+	if rand.Intn(100) >= 97 {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🧢")
+	}
 
 	// general debug and joke messages
 	switch m.Content {
@@ -118,7 +119,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// 	// return
 		// } else {
 
-			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
+		s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
 		// }
 
 	}
