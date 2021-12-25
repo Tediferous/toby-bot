@@ -1,5 +1,5 @@
 default:
-	go build main.go
+	go build -o bin/toby
 
 install:
 	go build -o "${GOPATH}/bin/toby"

@@ -16,7 +16,7 @@
   a. Spam Channel - I channel you would like to spam with messages
   b. Server 
   c. Ban Role - a role that only allows someone to speak in the banned channel
-5. Install go modules with `go mod download`, i think?, maybe `go build`
+ 5. Install go modules with `go mod download`, i think?, maybe `go build`
 6. run with `go run main.go -t <TOKEN>`
 
 ## How to add THE Toby to a Server
