@@ -1,4 +1,4 @@
-package toby
+package main
 
 import (
 	"encoding/json"
@@ -47,8 +47,8 @@ func main() {
 
 	Sesh.AddHandler(messageCreate)
 	Sesh.AddHandler(messageDelete)
-	// Sesh.AddHandler(messageReactionAdd)
-	// Sesh.AddHandler(messageReactionRemove)
+	Sesh.AddHandler(messageReactionAdd)
+	Sesh.AddHandler(messageReactionRemove)
 
 	//Open socket
 	Check(Sesh.Open())
@@ -82,10 +82,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.MessageReactionAdd(m.ChannelID, m.ID, "🧢")
 	}
 
+	if rand.Intn(101) == 99 {
+		s.MessageReactionAdd(m.ChannelID, m.ID, "🔨")
+	}
+
 	// general debug and joke messages
 	switch m.Content {
 	case "go bears":
-		s.ChannelMessageSend(m.ChannelID, ":bear:")
+		s.ChannelMessageSend(m.ChannelID, m.Author.Mention()+" :bear:")
 		return
 	// :crown:
 	case "who's alpha":
@@ -99,28 +103,28 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if isMentioned(s.State.User, m.Mentions) {
 		log.Info("I heard my name")
-		// params := strings.Split(m.Content, ",")
-		// if (m.Author.ID == GuildDaddy) && strings.Contains(params[0], "ban") {
-		// 	log.Debug("hammer? :eyes:")
-		// 	for _, u := range m.Mentions {
-		// 		if u.ID != s.State.User.ID {
-		// 			go ban(append([]string{u.ID, m.ChannelID}, params[1:]...)...)
-		// 		}
-		// 	}
-		// 	return
-		// } else if strings.Contains(params[0], "ban") {
-		// 	s.ChannelMessageSend(m.ChannelID, ":b:etas dont have the power to ban")
-		// 	return
-		// 	// } else if strings.Contains(params[0], "king me") {
-		// 	//         kingEm(s,m)
-		// 	// return
-		// 	// } else if strings.Contains(params[0], "beta me") {
-		// 	//         betaEm(s,m)
-		// 	// return
-		// } else {
+		params := strings.Split(m.Content, ",")
+		if (m.Author.ID == GuildDaddy) && strings.Contains(params[0], "mute") {
+			log.Debug("hammer? :eyes:")
+			for _, u := range m.Mentions {
+				if u.ID != s.State.User.ID {
+					go mute(append([]string{u.ID, m.ChannelID}, params[1:]...)...)
+				}
+			}
+			return
+		} else if strings.Contains(params[0], "mute") {
+			s.ChannelMessageSend(m.ChannelID, "you dont have the power to mute ,goofy")
+			return
+			// } else if strings.Contains(params[0], "king me") {
+			// 	kingEm(s, m)
+			// 	return
+			// } else if strings.Contains(params[0], "beta me") {
+			// 	betaEm(s, m)
+			// 	return
+		} else {
 
-		s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
-		// }
+			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
+		}
 
 	}
 
@@ -172,9 +176,14 @@ func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
 	}
 
 	if tally["🔨"]-tally["nohammer"] >= 3 {
-		Check(s.ChannelMessageDelete(channel, evidence))
-		s.ChannelMessageSend(channel, "The people have spoken. Banning the perp and deleting the message so it can hurt us no more")
-		go ban(message.Author.ID, channel, "2h")
+		// Check(s.ChannelMessageDelete(channel, evidence)) // delete message?
+		daddy, err := s.User(GuildDaddy)
+		Check(err)
+		s.ChannelMessageSendReply(
+			channel,
+			"The people have decided that this message is shadow realm worthy. "+daddy.Mention(),
+			message.Reference())
+		// go mute(message.Author.ID, channel, "1h")
 	}
 	return
 }
@@ -190,7 +199,7 @@ func messageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
 	// s.ChannelMessageSend(Spam, "@"+m.Message.Author.Username +" deleted the message:\n"+"`"+m.Message.Content+"`")
 }
 
-func ban(warrant ...string) {
+func mute(warrant ...string) {
 	log.Debug("Getting out the hammer")
 	trace(warrant)
 	sceneOfTheCrime := warrant[1]
@@ -204,13 +213,13 @@ func ban(warrant ...string) {
 
 	trace(member)
 	Check(err)
-	sentence := 2 * time.Hour
+	sentence := time.Hour
 
 	if len(warrant) > 2 {
 		sentence, err = time.ParseDuration(strings.TrimSpace(warrant[2]))
 		if err != nil {
-			sentence = 2 * time.Hour
-			Sesh.ChannelMessageSend(sceneOfTheCrime, "I couldn't understand your time duration, so Ill set it to 2 hours")
+			sentence = 1 * time.Hour
+			Sesh.ChannelMessageSend(sceneOfTheCrime, "I couldn't understand your time duration, so Ill set it to 1 hour")
 		}
 		maxSentence := 24 * time.Hour
 		if sentence > maxSentence {
@@ -220,24 +229,13 @@ func ban(warrant ...string) {
 	}
 	Sesh.ChannelMessageSend(sceneOfTheCrime, ":hammer:")
 
-	roles := member.Roles
-	trace(roles)
-
-	//remove all roles from member
-	for _, role := range roles {
-		Check(Sesh.GuildMemberRoleRemove(Guild, member.User.ID, role))
-	}
-
 	//add banned role to member
 	Check(Sesh.GuildMemberRoleAdd(Guild, member.User.ID, BanRole))
 
 	//parse time and sleep
 	time.Sleep(sentence)
 
-	//remove banned role, add old roles
-	for _, role := range roles {
-		Check(Sesh.GuildMemberRoleAdd(Guild, member.User.ID, role))
-	}
+	//remove banned role
 	Check(Sesh.GuildMemberRoleRemove(Guild, member.User.ID, BanRole))
 
 }
