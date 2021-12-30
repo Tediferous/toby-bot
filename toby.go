@@ -168,25 +168,52 @@ func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
 	message, err := s.ChannelMessage(channel, evidence)
 	Check(err)
 
-	tally := make(map[string]int)
-	tally["🔨"] = 0
-	tally["nohammer"] = 0
-	for _, reaction := range message.Reactions {
-		tally[reaction.Emoji.Name] = reaction.Count
+	if isCaseClosed(message) {
+		return
+	} else {
+		tally := make(map[string]int)
+		tally["🔨"] = 0
+		tally["nohammer"] = 0
+		for _, reaction := range message.Reactions {
+			tally[reaction.Emoji.Name] = reaction.Count
+		}
+
+		if tally["🔨"]-tally["nohammer"] >= 3 {
+			// Check(s.ChannelMessageDelete(channel, evidence)) // delete message?
+			daddy, err := s.User(GuildDaddy)
+			Check(err)
+			s.ChannelMessageSendReply(
+				channel,
+				"The people have decided that this message is shadow realm worthy. "+daddy.Mention(),
+				message.Reference())
+			closeCase(s, message)
+			// go mute(message.Author.ID, channel, "1h")
+		}
+		return
+	}
+}
+
+// react will react to the
+// closeCase marks a message a seen for toby. This makes it so toby wont do judicial stuff with it anymore
+func closeCase(s *discordgo.Session, message *discordgo.Message) error {
+	s.MessageReactionAdd(message.ChannelID, message.ID, "🔒")
+	return nil
+}
+
+// isCaseClosed checks to see if toby marked the case as closed
+func isCaseClosed(message *discordgo.Message) bool {
+
+	for _, r := range message.Reactions {
+		if r.Emoji.Name == "🔒" && r.Me {
+			return true
+		}
+
 	}
 
-	if tally["🔨"]-tally["nohammer"] >= 3 {
-		// Check(s.ChannelMessageDelete(channel, evidence)) // delete message?
-		daddy, err := s.User(GuildDaddy)
-		Check(err)
-		s.ChannelMessageSendReply(
-			channel,
-			"The people have decided that this message is shadow realm worthy. "+daddy.Mention(),
-			message.Reference())
-		// go mute(message.Author.ID, channel, "1h")
-	}
-	return
+	return false
 }
+
+// messageDelete handles delete message events
 func messageDelete(s *discordgo.Session, m *discordgo.MessageDelete) {
 	// TODO: make this function do something
 
