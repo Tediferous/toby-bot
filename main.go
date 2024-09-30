@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	log "github.com/sirupsen/logrus"
+	"github.com/charmbracelet/log"
 )
 
 var (
@@ -25,9 +25,6 @@ var (
 
 func init() {
 	log.SetLevel(log.DebugLevel)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
 
 	Token = os.Getenv("TOKEN")
 	flag.StringVar(&Token, "t", Token, "Bot Token")
@@ -115,12 +112,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		} else if strings.Contains(params[0], "mute") {
 			s.ChannelMessageSend(m.ChannelID, "you dont have the power to mute ,goofy")
 			return
-			// } else if strings.Contains(params[0], "king me") {
-			// 	kingEm(s, m)
-			// 	return
-			// } else if strings.Contains(params[0], "beta me") {
-			// 	betaEm(s, m)
-			// 	return
+			} else if strings.Contains(params[0], "king me") {
+				kingEm(s, m)
+				return
+			} else if strings.Contains(params[0], "beta me") {
+				betaEm(s, m)
+				return
 		} else {
 
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
