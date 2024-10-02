@@ -146,7 +146,12 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if (r.Emoji.Name == "🔨") || (r.Emoji.Name == "nohammer") {
 		tallyBanVotes(s, r.ChannelID, r.MessageID)
 		return
+	} else if (r.Emoji.Name == "lethalgun") && ( r.Member.User.ID == GuildDaddy){
+		// Discord Owner has reacted with the kill word, ban them
+		warrant :=  discernWhoToMute(r)
+		go mute(warrant...)
 	}
+
 	return
 }
 
@@ -159,6 +164,19 @@ func messageReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRem
 		return
 	}
 	return
+}
+
+func discernWhoToMute(r *discordgo.MessageReactionAdd) []string {
+	var warrant []string
+	authorID :=  ""
+	channel := ""
+	sentence := "1h"
+	// if this is a toby message
+		// find who toby tagged
+		// mute them
+		
+	warrant = append(warrant, authorID, channel, sentence)
+	return warrant
 }
 
 func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
@@ -262,18 +280,6 @@ func mute(warrant ...string) {
 	//remove banned role
 	Check(Sesh.GuildMemberRoleRemove(Guild, member.User.ID, BanRole))
 
-}
-
-func poll(prompt string, quorum int) {
-	//send message to channel with prompt
-	// options := map[string]int{
-	//         ":thumbsup:": 1,
-	//         ":thumbsdown:": 0,
-	// }
-
-	//watch message reactions
-	//if either reaction reaches quorum
-	//return options[reaction]
 }
 
 func isMentioned(u *discordgo.User, m []*discordgo.User) bool {
