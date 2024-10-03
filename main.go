@@ -148,7 +148,7 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 		return
 	} else if (r.Emoji.Name == "lethalgun") && ( r.Member.User.ID == GuildDaddy){
 		// Discord Owner has reacted with the kill word, ban them
-		warrant :=  discernWhoToMute(r)
+		warrant :=  discernWhoToMute(s,r)
 		go mute(warrant...)
 	}
 
@@ -166,15 +166,28 @@ func messageReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRem
 	return
 }
 
-func discernWhoToMute(r *discordgo.MessageReactionAdd) []string {
+func discernWhoToMute(s *discordgo.Session, r *discordgo.MessageReactionAdd) []string {
 	var warrant []string
 	authorID :=  ""
 	channel := ""
 	sentence := "1h"
+
+	m, err := s.ChannelMessage(r.ChannelID,r.MessageID)
+	Check(err)
+
 	// if this is a toby message
+	if(m.Author.ID == s.State.User.ID){
 		// find who toby tagged
-		// mute them
-		
+		for _,u := range(m.Mentions){
+			if u.ID != s.State.User.ID && u.ID != GuildDaddy {
+				authorID = u.ID
+				channel = r.ChannelID
+
+				break
+			}
+		}
+	}
+
 	warrant = append(warrant, authorID, channel, sentence)
 	return warrant
 }
@@ -197,9 +210,12 @@ func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
 			// Check(s.ChannelMessageDelete(channel, evidence)) // delete message?
 			daddy, err := s.User(GuildDaddy)
 			Check(err)
+			criminal, err := s.User(message.Author.ID)
+			Check(err)
 			s.ChannelMessageSendReply(
 				channel,
-				"The people have decided that this message is shadow realm worthy. "+daddy.Mention(),
+				//"The people have decided that this message is shadow realm worthy. "+daddy.Mention(),
+				"The people think we should banish "+criminal.Mention()+", "+daddy.Mention(),
 				message.Reference())
 			closeCase(s, message)
 			// go mute(message.Author.ID, channel, "1h")
