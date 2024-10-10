@@ -112,12 +112,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		} else if strings.Contains(params[0], "mute") {
 			s.ChannelMessageSend(m.ChannelID, "you dont have the power to mute ,goofy")
 			return
-			} else if strings.Contains(params[0], "king me") {
-				kingEm(s, m)
-				return
-			} else if strings.Contains(params[0], "beta me") {
-				betaEm(s, m)
-				return
+		} else if strings.Contains(params[0], "king me") {
+			kingEm(s, m)
+			return
+		} else if strings.Contains(params[0], "beta me") {
+			betaEm(s, m)
+			return
 		} else {
 
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
@@ -146,9 +146,9 @@ func messageReactionAdd(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
 	if (r.Emoji.Name == "🔨") || (r.Emoji.Name == "nohammer") {
 		tallyBanVotes(s, r.ChannelID, r.MessageID)
 		return
-	} else if (r.Emoji.Name == "lethalgun") && ( r.Member.User.ID == GuildDaddy){
+	} else if (r.Emoji.Name == "lethalgun") && (r.Member.User.ID == GuildDaddy) {
 		// Discord Owner has reacted with the kill word, ban them
-		warrant :=  discernWhoToMute(s,r)
+		warrant := discernWhoToMute(s, r)
 		go mute(warrant...)
 	}
 
@@ -168,17 +168,17 @@ func messageReactionRemove(s *discordgo.Session, r *discordgo.MessageReactionRem
 
 func discernWhoToMute(s *discordgo.Session, r *discordgo.MessageReactionAdd) []string {
 	var warrant []string
-	authorID :=  ""
+	authorID := ""
 	channel := ""
 	sentence := "1h"
 
-	m, err := s.ChannelMessage(r.ChannelID,r.MessageID)
+	m, err := s.ChannelMessage(r.ChannelID, r.MessageID)
 	Check(err)
 
 	// if this is a toby message
-	if(m.Author.ID == s.State.User.ID){
+	if m.Author.ID == s.State.User.ID {
 		// find who toby tagged
-		for _,u := range(m.Mentions){
+		for _, u := range m.Mentions {
 			if u.ID != s.State.User.ID && u.ID != GuildDaddy {
 				authorID = u.ID
 				channel = r.ChannelID
