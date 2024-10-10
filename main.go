@@ -112,12 +112,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		} else if strings.Contains(params[0], "mute") {
 			s.ChannelMessageSend(m.ChannelID, "you dont have the power to mute ,goofy")
 			return
-		} else if strings.Contains(params[0], "king me") {
-			kingEm(s, m)
-			return
-		} else if strings.Contains(params[0], "beta me") {
-			betaEm(s, m)
-			return
+			// } else if strings.Contains(params[0], "king me") {
+			// 	kingEm(s, m)
+			// 	return
+			// } else if strings.Contains(params[0], "beta me") {
+			// 	betaEm(s, m)
+			// 	return
 		} else {
 
 			s.MessageReactionAdd(m.ChannelID, m.ID, ":toby:732732965578211328")
@@ -227,8 +227,24 @@ func tallyBanVotes(s *discordgo.Session, channel, evidence string) {
 // react will react to the
 // closeCase marks a message a seen for toby. This makes it so toby wont do judicial stuff with it anymore
 func closeCase(s *discordgo.Session, message *discordgo.Message) error {
-	s.MessageReactionAdd(message.ChannelID, message.ID, "🔒")
+	err := s.MessageReactionAdd(message.ChannelID, message.ID, "🔒")
+	if err != nil {
+		if err.(*discordgo.RESTError).Message.Code == discordgo.ErrCodeReactionBlocked {
+			log.Error("Cant lock thread, Blocked")
+			banishForever(s, message)
+		}
+	}
+
 	return nil
+}
+
+func banishForever(s *discordgo.Session, message *discordgo.Message) {
+	// Check(s.ChannelMessageDelete(message.ChannelID, message.ID))
+	criminal, err := s.User(message.Author.ID)
+	Check(err)
+	s.ChannelMessageSend(message.ChannelID, "Tried to lock message, but "+criminal.Mention()+" blocked me.")
+	s.ChannelMessageSend(message.ChannelID, "Putting them in the shadow realm, forever.")
+	Check(Sesh.GuildMemberRoleAdd(Guild, criminal.ID, BanRole))
 }
 
 // isCaseClosed checks to see if toby marked the case as closed
