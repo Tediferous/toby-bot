@@ -1,6 +1,6 @@
 module github.com/tediferous/toby-bot
 
-go 1.23.1
+go 1.26.2
 
 require (
 	github.com/bwmarrin/discordgo v0.28.1
